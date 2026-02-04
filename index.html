@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solar V1</title>
+    <title>Solar V1 - Space Proxy</title>
     <script src="/uv/uv.bundle.js"></script>
     <script src="/uv/uv.config.js"></script>
     <script src="/baremux/index.js"></script>
@@ -457,9 +457,22 @@
     <script>
         // register sw
         if ("serviceWorker" in navigator) {
-            window.addEventListener("load", () => {
-                navigator.serviceWorker.register("/uv/sw.js")
+            window.addEventListener("load", async () => {
+                try {
+                    // Try to register the service worker
+                    const registration = await navigator.serviceWorker.register("/uv/sw.js", {
+                        scope: "/uv/service/"
+                    });
+                    console.log("✅ Service Worker registered successfully:", registration);
+                } catch (error) {
+                    console.error("❌ Service Worker registration failed:", error);
+                    console.log("Make sure /uv/sw.js exists on your server");
+                    alert("Proxy service worker failed to load. Make sure all Ultraviolet files are properly uploaded to your server at /uv/");
+                }
             })
+        } else {
+            console.error("Service Workers are not supported in this browser");
+            alert("Your browser doesn't support Service Workers, which are required for this proxy.");
         }
     </script>
 
@@ -595,7 +608,7 @@
             bTabs.splice(tIndex, 1)
 
             const tEl = document.querySelector(`.tab[data-tab-id="${tId}"]`)
-            const frame = document.querySelector(`.viewframe[data-view-id="${tId}"]`)
+            const frame = document.querySelector(`.viewframe[data-frame-id="${tId}"]`)
 
             if (tEl) tEl.remove()
             if (frame) frame.remove()
